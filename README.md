@@ -1,91 +1,356 @@
-# EduCMS — Educational Content Management System (PostgreSQL edition)
+# 🎓 EduCMS --- Educational Content Management System (PostgreSQL Edition)
 
-Master's degree software engineering project: a full-featured CMS for educational institutions.
-**Node.js / Express / PostgreSQL** backend + **React (Vite)** admin panel.
-A MySQL edition of the same project also exists; both share an identical API and frontend.
+> **Master's Degree Software Engineering Project**
 
-## Implemented Features
+A complete **Content Management System (CMS)** designed for educational
+institutions.
 
-- JWT authentication (access + refresh tokens, automatic renewal on the client)
-- Role-based access control with 4 roles: `admin`, `editor`, `author`, `subscriber`
-- Editorial workflow: an *author* writes drafts, only an *editor/admin* can publish
-- Full CRUD: posts, hierarchical categories, tags, comments, media, users
-- Comment moderation queue (pending / approved / spam / trash)
-- Media library (Multer upload with type and size restrictions)
-- Per-post SEO (meta title / description / keywords), unique slugs, computed reading time
-- Activity log (audit trail) + statistics dashboard
-- Optional Redis caching (automatically invalidated on writes)
-- Security: Helmet, CORS, global rate limiting + brute-force protection on /auth,
-  100% parameterized SQL queries (injection-safe), bcrypt password hashing,
-  express-validator input validation
-- OpenAPI/Swagger documentation served at `/api-docs`
-- Jest unit tests (helpers + authentication middleware)
+This edition is powered by:
 
-## Quick Start (local)
+-   ⚙️ **Backend:** Node.js + Express + PostgreSQL
+-   🎨 **Frontend:** React (Vite)
 
-### 1. Database (PostgreSQL 13+)
-```bash
+> A MySQL edition of the same project also exists. Both versions share
+> the same REST API and frontend.
+
+------------------------------------------------------------------------
+
+# 🌐 Live Demo
+
+  -----------------------------------------------------------------------------------------------------------------------
+  Service                                       URL
+  --------------------------------------------- -------------------------------------------------------------------------
+  **Admin Panel**                               https://checkpoint-content-management-syste-hazel.vercel.app
+
+  **REST API**                                  https://checkpoint-content-management-system-ml8d.onrender.com
+
+  **Swagger Documentation**                     https://checkpoint-content-management-system-ml8d.onrender.com/api-docs
+
+  **Health Check**                              https://checkpoint-content-management-system-ml8d.onrender.com/health
+  -----------------------------------------------------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+# 🔑 Test Accounts
+
+**Password for all accounts**
+
+``` text
+Admin123!
+```
+
+  ------------------------------------------------------------------------
+  Email               Role             Permissions
+  ------------------- ---------------- -----------------------------------
+  admin@educms.com    Admin            Full access (users, roles,
+                                       settings, content)
+
+  editor@educms.com   Editor           Publish posts, moderate comments,
+                                       manage categories
+
+  author@educms.com   Author           Create and edit drafts (cannot
+                                       publish)
+  ------------------------------------------------------------------------
+
+> ⚠️ **Render Free Tier Notice**
+>
+> The backend is hosted on Render's free plan. If the API has been
+> inactive for more than **15 minutes**, the first request may take
+> **30--50 seconds** while the server wakes up.
+
+------------------------------------------------------------------------
+
+# ✨ Features
+
+## 🔐 Authentication & Security
+
+-   JWT Authentication (Access + Refresh Tokens)
+-   Automatic token renewal
+-   Role-Based Access Control (RBAC)
+-   4 user roles:
+    -   Admin
+    -   Editor
+    -   Author
+    -   Subscriber
+
+### Security
+
+-   Helmet
+-   CORS
+-   Global Rate Limiting
+-   Brute Force Protection
+-   bcrypt Password Hashing
+-   express-validator
+-   Fully Parameterized SQL Queries (SQL Injection Safe)
+
+------------------------------------------------------------------------
+
+## 📝 Content Management
+
+-   Complete CRUD for Posts
+-   Hierarchical Categories
+-   Tags
+-   Comments
+-   Media Library
+-   Users Management
+
+### Editorial Workflow
+
+-   Authors create drafts
+-   Editors/Admins publish content
+
+### Comments
+
+-   Pending
+-   Approved
+-   Spam
+-   Trash
+
+------------------------------------------------------------------------
+
+## 📂 Media Library
+
+-   Multer Uploads
+-   File Type Validation
+-   File Size Restrictions
+
+------------------------------------------------------------------------
+
+## 🚀 SEO Features
+
+-   Meta Title
+-   Meta Description
+-   Keywords
+-   Unique Slugs
+-   Automatic Reading Time Calculation
+
+------------------------------------------------------------------------
+
+## 📊 Monitoring
+
+-   Activity Log (Audit Trail)
+-   Statistics Dashboard
+-   Optional Redis Cache
+-   Automatic Cache Invalidation
+
+------------------------------------------------------------------------
+
+## 📖 API Documentation
+
+OpenAPI / Swagger documentation available at:
+
+``` text
+/api-docs
+```
+
+------------------------------------------------------------------------
+
+## 🧪 Testing
+
+-   Jest Unit Tests
+-   Authentication Middleware Tests
+-   Helper Function Tests
+
+------------------------------------------------------------------------
+
+# 🚀 Local Installation
+
+## 1️⃣ PostgreSQL Database
+
+``` bash
 createdb educms_db
 ```
 
-### 2. Backend
-```bash
-cd backend
-cp .env.example .env        # then set DB_PASSWORD and the JWT secrets
-npm install
-npm run migrate             # creates the schema (tables, indexes, triggers, views)
-npm run seed                # test accounts + sample data
-npm run dev                 # http://localhost:5000
-```
-Test accounts: `admin@educms.com`, `editor@educms.com`, `author@educms.com` — password `Admin123!`
+------------------------------------------------------------------------
 
-### 3. Frontend (admin panel)
-```bash
+## 2️⃣ Backend
+
+``` bash
+cd backend
+
+cp .env.example .env
+
+npm install
+
+npm run migrate
+
+npm run seed
+
+npm run dev
+```
+
+Backend runs on:
+
+``` text
+http://localhost:5000
+```
+
+------------------------------------------------------------------------
+
+## 3️⃣ Frontend
+
+``` bash
 cd frontend
+
 npm install
-npm run dev                 # http://localhost:3000 (API proxied automatically)
+
+npm run dev
 ```
 
-### 4. Tests
-```bash
-cd backend && npm test
+Frontend runs on:
+
+``` text
+http://localhost:3000
 ```
 
-## Architecture
+------------------------------------------------------------------------
 
-```
-backend/    Express REST API (MVC: routes → controllers → models → PostgreSQL)
-frontend/   React SPA (Vite): dashboard, posts, categories, tags,
-            moderation, media, users
-docs/       OpenAPI 3 specification
-```
+## 4️⃣ Run Tests
 
-Normalized API response shape: `{ success, message, data, pagination? }`.
-
-## Deployment (Heroku)
-
-```bash
+``` bash
 cd backend
-heroku create educms-api
-heroku addons:create heroku-postgresql:essential-0
-heroku config:set NODE_ENV=production \
-  JWT_SECRET=$(openssl rand -hex 32) \
-  JWT_REFRESH_SECRET=$(openssl rand -hex 32) \
-  FRONTEND_URL=https://your-frontend.vercel.app
-git init && git add . && git commit -m "EduCMS backend"
-git push heroku main
-heroku run npm run migrate
-heroku run npm run seed
+
+npm test
 ```
-The backend reads Heroku's `DATABASE_URL` automatically (SSL enabled in production).
-Render and Railway also provide PostgreSQL with a `DATABASE_URL` and work the same way.
 
-### Frontend
-`npm run build`, then deploy `dist/` to Vercel/Netlify, adding a rewrite of
-`/api/*` to the backend URL (or set `baseURL` in `src/api/client.js`).
+------------------------------------------------------------------------
 
-> Note: platform disks are ephemeral — for persistent media storage in
-> production, plug in S3-compatible object storage.
+# 🏗️ Project Structure
 
-## License
-MIT
+``` text
+backend/
+│
+├── Express REST API
+├── MVC Architecture
+├── Routes
+├── Controllers
+├── Models
+└── PostgreSQL
+
+frontend/
+│
+├── React SPA
+├── Dashboard
+├── Posts
+├── Categories
+├── Tags
+├── Media
+├── Users
+└── Moderation
+
+docs/
+└── OpenAPI Specification
+```
+
+------------------------------------------------------------------------
+
+# 📦 Standard API Response
+
+``` json
+{
+  "success": true,
+  "message": "...",
+  "data": {},
+  "pagination": {}
+}
+```
+
+------------------------------------------------------------------------
+
+# ☁️ Deployment
+
+## Infrastructure
+
+  Layer      Platform             Description
+  ---------- -------------------- -----------------------------
+  Database   Render PostgreSQL    Managed PostgreSQL Instance
+  Backend    Render Web Service   Express REST API
+  Frontend   Vercel               React + Vite
+
+------------------------------------------------------------------------
+
+## Backend Deployment (Render)
+
+### Step 1
+
+Create a PostgreSQL instance on Render.
+
+------------------------------------------------------------------------
+
+### Step 2
+
+Run database migration locally:
+
+``` powershell
+$env:NODE_ENV="production"
+
+$env:DATABASE_URL="<External Database URL>"
+
+npm run migrate
+
+npm run seed
+```
+
+------------------------------------------------------------------------
+
+### Step 3
+
+Create a Render Web Service.
+
+Configuration:
+
+  Setting          Value
+  ---------------- -------------
+  Root Directory   backend
+  Build Command    npm install
+  Start Command    npm start
+
+### Environment Variables
+
+  Variable             Description
+  -------------------- ------------------------------
+  NODE_ENV             production
+  DATABASE_URL         Internal Render Database URL
+  JWT_SECRET           Random Secret
+  JWT_REFRESH_SECRET   Random Secret
+  FRONTEND_URL         Vercel URL
+
+The backend automatically enables SSL when `DATABASE_URL` is detected in
+production.
+
+------------------------------------------------------------------------
+
+# ▲ Frontend Deployment (Vercel)
+
+The frontend already includes a **vercel.json** configuration that:
+
+-   Rewrites `/api/*`
+-   Rewrites `/uploads/*`
+-   Enables React Router SPA fallback
+
+Deployment Steps:
+
+1.  Import the repository into Vercel.
+2.  Select:
+
+``` text
+Root Directory = frontend
+Preset = Vite
+```
+
+3.  Deploy.
+
+4.  Copy the generated Vercel URL.
+
+5.  Set that URL as:
+
+``` text
+FRONTEND_URL
+```
+
+inside your Render backend environment variables.
+
+
+# 📄 License
+
+**MIT License**
