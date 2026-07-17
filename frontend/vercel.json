@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://checkpoint-content-management-system-ml8d.onrender.com/api/:path*" },
+    { "source": "/uploads/:path*", "destination": "https://checkpoint-content-management-system-ml8d.onrender.com/uploads/:path*" },
+    { "source": "/:path*", "destination": "/index.html" }
+  ]
+}
