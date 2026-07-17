@@ -1,0 +1,104 @@
+openapi: 3.0.3
+info:
+  title: EduCMS API
+  version: 1.0.0
+  description: API REST du systeme de gestion de contenu educatif EduCMS
+servers:
+  - url: /api/v1
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      summary: Creer un compte (role subscriber)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email, password]
+              properties:
+                username: { type: string }
+                email: { type: string }
+                password: { type: string, minLength: 8 }
+      responses:
+        "201": { description: Compte cree, tokens retournes }
+  /auth/login:
+    post:
+      summary: Connexion (retourne accessToken + refreshToken)
+      security: []
+      responses:
+        "200": { description: Connexion reussie }
+        "401": { description: Identifiants invalides }
+  /auth/refresh:
+    post:
+      summary: Renouveler l'accessToken via refreshToken
+      security: []
+      responses:
+        "200": { description: Nouveaux tokens }
+  /auth/me:
+    get:
+      summary: Profil de l'utilisateur connecte
+      responses:
+        "200": { description: Profil }
+  /posts:
+    get:
+      summary: Liste des articles (publies pour le public, tous statuts pour le staff)
+      security: []
+      parameters:
+        - { name: page, in: query, schema: { type: integer } }
+        - { name: limit, in: query, schema: { type: integer } }
+        - { name: search, in: query, schema: { type: string } }
+        - { name: category_id, in: query, schema: { type: integer } }
+        - { name: tag, in: query, schema: { type: string } }
+        - { name: status, in: query, schema: { type: string, enum: [draft, published, archived] } }
+      responses:
+        "200": { description: Liste paginee }
+    post:
+      summary: Creer un article (author, editor, admin)
+      responses:
+        "201": { description: Article cree }
+  /posts/{idOrSlug}:
+    get:
+      summary: Detail d'un article par id ou slug
+      security: []
+      responses:
+        "200": { description: Article }
+        "404": { description: Introuvable }
+  /posts/{id}:
+    put:
+      summary: Modifier un article (proprietaire ou editor/admin ; publication reservee editor/admin)
+      responses:
+        "200": { description: Mis a jour }
+    delete:
+      summary: Supprimer un article
+      responses:
+        "200": { description: Supprime }
+  /categories:
+    get: { summary: Liste des categories avec compteur d'articles, security: [], responses: { "200": { description: OK } } }
+    post: { summary: Creer une categorie (editor/admin), responses: { "201": { description: Creee } } }
+  /tags:
+    get: { summary: Liste des tags, security: [], responses: { "200": { description: OK } } }
+    post: { summary: Creer un tag (author+), responses: { "201": { description: Cree } } }
+  /comments:
+    get: { summary: File de moderation (editor/admin), responses: { "200": { description: OK } } }
+    post: { summary: Poster un commentaire (connecte), responses: { "201": { description: Soumis } } }
+  /comments/{id}/status:
+    patch: { summary: Moderer un commentaire (approved/spam/trash), responses: { "200": { description: OK } } }
+  /media:
+    get: { summary: Bibliotheque de medias, responses: { "200": { description: OK } } }
+    post:
+      summary: Televerser un fichier (multipart/form-data, champ "file")
+      responses: { "201": { description: Televerse } }
+  /users:
+    get: { summary: Liste des utilisateurs (admin/editor), responses: { "200": { description: OK } } }
+  /dashboard/stats:
+    get: { summary: Statistiques globales (posts, users, commentaires, activite), responses: { "200": { description: OK } } }
